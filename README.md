@@ -13,16 +13,17 @@ This is a PageRank implementation using Spark Computation model for parallel pro
     
 - **src**: 
 
-    - It contains 1 main class called PageRank which is the implementation
-    - 1 XMLInputFormat helper class which is used to extract tags from the large xml in chunks
-    - 1 test file which basic functionality of the Code.
+    - It contains  main class "PageRank.scala" which is the implementation using Spark
+    - "XMLInputFormat.java". A helper class which is used to extract tags from the large xml in chunks.
+    - "Test.scala". A scala code to test the basic functionality of the Code.
     
     
 **Explain/Notes:**
 
  - Compiled Jar is placed in the Jar folder in root.
- - You can create it using " sbt clean compile package "
+ - You can create it manually using " sbt clean compile package "
  - You can check tests with " sbt clean compile test " 
+  
   
 **Execution:**
 
@@ -31,7 +32,7 @@ This is a PageRank implementation using Spark Computation model for parallel pro
  - To run locally uncomment line 139 in 'PageRank' class which sets the system property for Spark to run locally.
  
  
- **Bonus:**
+ **Bonus: Steps to deploy onto AWS EMR**
  
  - Youtube Link:  https://youtu.be/e_NwYyJw97g
  
