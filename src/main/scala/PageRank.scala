@@ -5,12 +5,13 @@ import org.apache.hadoop.io.LongWritable
 import org.apache.hadoop.io.Text
 import org.apache.spark.api.java.{JavaPairRDD, JavaSparkContext, function}
 import org.apache.spark.api.java.function.VoidFunction
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SparkSession
 
 import scala.collection.mutable.ListBuffer
 //import org.apache.commons.lang3.StringUtils
 //import org.apache.commons.text.StringEscapeUtils
-//import com.typesafe.scalalogging.Logger
+import com.typesafe.scalalogging.Logger
 
 object PageRank extends App {
 
@@ -46,6 +47,26 @@ object PageRank extends App {
     pair
   }
 
+  def getRanks(professor_map : RDD[(String, Iterable[String])]): RDD[(String, Double)]={
+    var ranks = professor_map.mapValues(v => 1.0)
+
+    //ranks.collect().foreach(println)        //Print initial ranks
+
+    /**
+      * Now running the PageRank upto specified number
+      * or iterations. Hopefully it converges
+      **/
+    for (i <- 1 to 5) {
+      val network = professor_map.join(ranks).values.flatMap{ case (urls, rank) =>
+        val size = urls.size
+        urls.map(url => (url, rank / size))
+      }
+      ranks = network.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)
+    }
+    val sorted_descending = ranks.sortBy(_._2, false)       // Sorting ranks in descending order
+    //  sorted_descending.collect().foreach(println)                //Print updated ranks
+    return sorted_descending
+  }
 //  def main(args :Array[String]): Unit={
 /**
   *
@@ -97,8 +118,8 @@ object PageRank extends App {
   *
 **/
 
-//    val LOG = Logger("SMAITH2")
-//    LOG.info("Starting Spark App")
+    val LOG = Logger("SMAITH2")
+    LOG.info("Starting Spark App")
 
     /**
       * Setting up Hadoop configuration in order to parse XML
@@ -115,7 +136,7 @@ object PageRank extends App {
 
     val sparkSession: SparkSession = SparkSession.builder()
       .appName("Spark XML")
-//      .config("spark.master", "local")
+      .config("spark.master", "local")
       .getOrCreate()
     val jSparkContext = new JavaSparkContext(sparkSession.sparkContext)
 //    val sSparkContext = new SparkContext(sparkConfiguration)
@@ -127,7 +148,7 @@ object PageRank extends App {
       * in a tuple and flattens it
       * Then gets distinct keys snd mspd corresponding vaues
       **/
-//  LOG.info("Creating RDD and Mapping")
+  LOG.info("Creating RDD and Mapping")
     val professor_map = tag.rdd.flatMap{ s =>
 //      val document = StringEscapeUtils.unescapeHtml4(s._2.toString)       // Uncomment if you want to remove unnecessary accesnts/ditrics
       val document = s._2.toString
@@ -136,32 +157,17 @@ object PageRank extends App {
     }
       .distinct().groupByKey().cache()
 
-//  professor_map.collect().foreach(println)        //Print tuples for checking
 
-  var ranks = professor_map.mapValues(v => 1.0)
+  /**
+    * Calling getRank() method which iterative computes the rank
+    **/
+  val sorted_descending = getRanks(professor_map)
 
-//ranks.collect().foreach(println)        //Print initial ranks
-
-    /**
-      * Now running the PageRank upto specified number
-      * or iterations. Hopefully it converges
-      **/
-//  LOG.info("Iterating through the graph and computing ranks till it converges")
-  for (i <- 1 to 5) {
-    val contribs = professor_map.join(ranks).values.flatMap{ case (urls, rank) =>
-      val size = urls.size
-      urls.map(url => (url, rank / size))
-    }
-    ranks = contribs.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)
-  }
-
-  val sorted_descending = ranks.sortBy(_._2, false)       // Sorting ranks in descending order
-//  sorted_descending.collect().foreach(println)                //Print updated ranks
 //  output.foreach(tup => println(tup._1 + " has rank: " + tup._2 + "."))
-//  LOG.info("Saving ranks to a file...")
+  LOG.info("Saving ranks to a file...")
   sorted_descending.saveAsTextFile(args(1))              //  Saving output into the folder specified
-//  LOG.info("All done.")
+  LOG.info("All done.")
 //    println("Reached End of Code!")       // Printing end of main
-//  LOG.info("Execution Finished!")
+  LOG.info("Execution Finished!")
 //  }
 }
