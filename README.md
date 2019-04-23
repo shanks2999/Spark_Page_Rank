@@ -7,7 +7,7 @@
 This is a PageRank implementation using Spark Computation model for parallel processing of the [publically available DBLP dataset](https://dblp.uni-trier.de). XML parsing developed in Scala and using Spark RDD's which setup locally and tested on Hortonworks VM as well as deployed on AWS EMR.   
 
 **Overview**
-Each entry in the dataset describes a publication, which contains the list of authors, the title, and the publication venue and a few other attributes. The file is approximately 2.5Gb - not big by today's standards, but large enough for this homework assignment. Each entry is independent from the other one in that it can be processed without synchronizing with processing some other entries.
+Each entry in the dataset describes a publication, which contains the list of authors, the title, and the publication venue and a few other attributes. The file is approximately 2.5Gb - not big by today's standards, but large enough for this project. Each entry is independent from the other one in that it can be processed without synchronizing with processing some other entries.
 
 Consider the following entry in the dataset.
 ```xml
@@ -27,8 +27,6 @@ Consider the following entry in the dataset.
 ```
 
 This entry lists a paper at the IEEE International Conference on Software Testing, Verification and Validation (ICST) published in 2013 whose authors are my former Ph.D. student at UIC, now tenured Associate Professor at the University of Dhaka, Dr. B.M. Mainul Hussain whose advisor Mark Grechanik is a co-author on this paper. The third co-author is Prof.Ugo Buy, a faculty member at our CS department. The presence of two authors, Mark Grechanik and Ugo Buy in a single publication like this one establishes a connection between these faculty members. Depending on the importance of these nodes, ICST may have the highest pagerank value followed by... well, it is up to Spark to find out!
-
-
 
 **Project Structure:** 
 
